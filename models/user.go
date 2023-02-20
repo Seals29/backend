@@ -26,3 +26,13 @@ type UserSubscribe struct {
 	gorm.Model
 	UserEmail string `json:"useremail"`
 }
+type Shop struct {
+	gorm.Model
+	Email       string  `json:"email"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	IsBan       bool    `json:"isban"`
+	Banner      string  `json:"banner"`
+	Sales       int     `json:"sales"`
+	Service     float64 `json:"service"`
+}

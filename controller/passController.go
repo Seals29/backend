@@ -49,10 +49,6 @@ func ForgotPassword(c *gin.Context) {
 		// msg := "Subject: ONE-TIME SIGN IN CODE!\nHere is your code : " + code + ""
 		// msg := "Subject: Your Shop Account has been verified\nYou've been verified the shop account congrats"
 		msg := "Subject: Newegg ONE TIME CODES! \n\nYou've request ONE TIME CODE, here is your code : " + code + "\n"
-		// 	ExpiredDate time.Time `json:"expireddate"`
-		// ResetCode   int       `json:"resetcode"`
-		// UserID      int       `json:"userid"`
-		// Used        bool      `json:"used"`
 		var user models.User
 		config.DB.Where("email = ?", body.Email).First(&user)
 		fmt.Println(user.ID)
@@ -69,13 +65,6 @@ func ForgotPassword(c *gin.Context) {
 			Used:        false,
 		}
 		config.DB.Create(&resetuser)
-
-		// var user models.User
-		// config.DB.Where("id =?", c.Param("id")).First(&user)
-		// c.BindJSON(&user)
-		// config.DB.Save(&user)
-		// c.JSON(200, &user)
-
 		err2 := smtp.SendMail(
 			"smtp.gmail.com:587",
 			auth,

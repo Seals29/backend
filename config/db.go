@@ -18,5 +18,6 @@ func Connect() {
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.ResetUser{})
 	db.AutoMigrate(&models.UserSubscribe{})
+	db.AutoMigrate(&models.Shop{})
 	DB = db
 }
