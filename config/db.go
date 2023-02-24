@@ -19,5 +19,9 @@ func Connect() {
 	db.AutoMigrate(&models.ResetUser{})
 	db.AutoMigrate(&models.UserSubscribe{})
 	db.AutoMigrate(&models.Shop{})
+	db.AutoMigrate(&models.Product{})
+	db.AutoMigrate(&models.ProductDetailImage{})
+	db.AutoMigrate(&models.ProductCategory{})
+	db.AutoMigrate(&models.ForgotUser{})
 	DB = db
 }
