@@ -100,15 +100,6 @@ func SignUp(c *gin.Context) {
 		log.Println(&body)
 
 		log.Println(body.Password)
-		// if res != nil {
-		// 	c.JSON(http.StatusBadRequest, gin.H{
-		// 		"error": "Failed to read body3",
-		// 	})
-		// 	return
-		// }
-		//respon
-
-		//generate JWT TOKEN
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"sub": user.ID,
 			"exp": time.Now().Add(time.Hour * 24).Unix(),
@@ -121,8 +112,6 @@ func SignUp(c *gin.Context) {
 			return
 		}
 
-		//sign in and get the complete encoded token as as tring using the secret
-		//sent it back
 		c.SetSameSite(http.SameSiteLaxMode)
 		c.SetCookie("Authorized", TokenString, 3600*24, "", "", false, true)
 		c.JSON(http.StatusOK, gin.H{
@@ -251,14 +240,6 @@ func ResendForgotPassword(c *gin.Context) {
 	var user models.User
 	config.DB.Where("email = ?", body.Email).First(&user)
 	config.DB.Model(&models.ForgotUser{}).Where("user_id = ?", user.ID).Update("used", true)
-	fmt.Println("===")
-	// if res.Error != nil {
-	// 	c.JSON(200, gin.H{
-	// 		"error": res.Error,
-	// 	})
-	// 	return
-	// }
-	//==========
 	auth := smtp.PlainAuth(
 		"",
 		"lionelriyadi13@gmail.com",
@@ -389,16 +370,6 @@ func UserSubscribe(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"Message ": "User has been subscribed",
 	})
-	// //create the user
-	// user := models.User{
-	// 	FirstName: body.FirstName,
-	// 	LastName:  body.LastName,
-	// 	IsBan:     body.IsBan,
-	// 	Role:      body.Role,
-	// 	Email:     body.Email,
-	// 	Password:  string(hash)}
-	// config.DB.Create(&user)
-	// log.Println(&body)
 }
 func Login(c *gin.Context) {
 	//get email and pass off req body
@@ -586,9 +557,6 @@ func UpdateProduct(c *gin.Context) {
 		})
 		return
 	}
-	// c.JSON(200, gin.H{
-	// "message": body,
-	// })
 	var product models.Product
 	config.DB.Where("id = ?", body.ProductID).First(&product)
 

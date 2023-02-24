@@ -164,8 +164,10 @@ func SendOneTime(c *gin.Context) {
 			"resetuser": resetuser,
 		})
 	} else {
-		// show the "forgot password" form
-		c.HTML(http.StatusOK, "forgot_password.html", gin.H{})
+		c.JSON(200, gin.H{
+			"error": "Request method should be POST!",
+		})
+		return
 	}
 }
 

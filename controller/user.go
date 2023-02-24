@@ -278,14 +278,6 @@ func UpdateShopPassword(c *gin.Context) {
 		})
 		return
 	}
-	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-
-	// // Check if the input password matches the hashed password
-	// if err == nil && bcrypt.CompareHashAndPassword(hashedPassword, []byte(inputPassword)) == nil {
-	// 	// Passwords match
-	// } else {
-	// 	// Passwords do not match
-	// }
 }
 func SetBan(c *gin.Context) {
 	var body struct {
