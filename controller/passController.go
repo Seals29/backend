@@ -31,6 +31,12 @@ func ForgotPassword(c *gin.Context) {
 		var body struct {
 			Email string
 		}
+		if len(body.Email) == 0 {
+			c.JSON(200, gin.H{
+				"error": "Email cannot be empty",
+			})
+			return
+		}
 		if c.Bind(&body) != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to read body1",
@@ -81,10 +87,6 @@ func ForgotPassword(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"resetuser": resetuser,
 		})
-		// email := c.PostForm("email")
-		// generate a unique token and store it in your database
-		// send an email to the user with a link to your "reset password" page that includes the token as a query parameter
-		// redirect the user to a page that confirms that an email has been sent
 	} else {
 		// show the "forgot password" form
 		c.HTML(http.StatusOK, "forgot_password.html", gin.H{})

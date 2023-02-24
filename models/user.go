@@ -36,3 +36,14 @@ type Shop struct {
 	Sales       int     `json:"sales"`
 	Service     float64 `json:"service"`
 }
+type Product struct {
+	gorm.Model
+	Name        string `json:"name"`
+	Category    string `json:"category"`
+	ShopEmail   string `json:"email"`
+	Price       int    `json:"price"`
+	Description string `json:"description"`
+	Image       string `json:"image"`
+	Stock       int    `json:"stock"`
+	Rating      int    `json:"rating"`
+}

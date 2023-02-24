@@ -31,7 +31,24 @@ func SignUp(c *gin.Context) {
 		})
 		return
 	}
-
+	if len(body.FirstName) == 0 {
+		c.JSON(200, gin.H{
+			"error": "First Name must not be empty",
+		})
+		return
+	}
+	if len(body.LastName) == 0 {
+		c.JSON(200, gin.H{
+			"error": "First Name must not be empty",
+		})
+		return
+	}
+	if len(body.Email) == 0 || len(body.Password) == 0 {
+		c.JSON(200, gin.H{
+			"error": "Email Or Password must not be empty",
+		})
+		return
+	}
 	//hash the pass
 	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
 	if err != nil {
@@ -124,10 +141,19 @@ func Login(c *gin.Context) {
 		Email    string `json:"Email"`
 		Password string `json:"Password"`
 	}
+
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body1",
 		})
+		return
+	}
+	pass := body.Password
+	if len(pass) == 0 || len(body.Email) == 0 {
+		c.JSON(200, gin.H{
+			"Error": "Email or Password cannot be empty",
+		})
+		return
 	}
 
 	//lookup requested user
@@ -171,15 +197,6 @@ func Login(c *gin.Context) {
 	})
 }
 func Announce(c *gin.Context) {
-	user := []models.UserSubscribe{}
-	config.DB.Find(&user)
-	allEmails := []string{}
-	for _, u := range user {
-		email := u.UserEmail
-		// Do something with the email, such as send an email to this address
-		fmt.Println("Email:", email)
-		allEmails = append(allEmails, email)
-	}
 	var body struct {
 		Subject string `json:"subject"`
 		Message string `json:"message"`
@@ -190,6 +207,21 @@ func Announce(c *gin.Context) {
 		})
 		return
 	}
+	if len(body.Subject) == 0 || len(body.Message) == 0 {
+		c.JSON(200, gin.H{
+			"error": "Subject/ Message cannot be empty",
+		})
+		return
+	}
+	user := []models.UserSubscribe{}
+	config.DB.Find(&user)
+	allEmails := []string{}
+	for _, u := range user {
+		email := u.UserEmail
+		fmt.Println("Email:", email)
+		allEmails = append(allEmails, email)
+	}
+
 	//email dapet di body
 	auth := smtp.PlainAuth(
 		"",
@@ -221,6 +253,7 @@ func NotifyShop(c *gin.Context) {
 	var body struct {
 		Email string `json:"email"`
 	}
+
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body1",

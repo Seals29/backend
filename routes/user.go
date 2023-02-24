@@ -20,4 +20,7 @@ func UserRoute(route *gin.Engine) {
 	route.POST("/announce", controller.Announce)
 	route.POST("/notifyshop", controller.NotifyShop)
 	route.POST("/onetimecode", controller.OneTimeCode)
+	route.GET("/getshop", controller.GetShops)
+	route.POST("/setban", controller.SetBan)
+	route.POST("/setbanuser", controller.SetBanUser)
 }
