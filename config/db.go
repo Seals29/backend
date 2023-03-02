@@ -21,7 +21,13 @@ func Connect() {
 	db.AutoMigrate(&models.Shop{})
 	db.AutoMigrate(&models.Product{})
 	db.AutoMigrate(&models.ProductDetailImage{})
+
 	db.AutoMigrate(&models.ProductCategory{})
+	db.AutoMigrate(&models.ProductSubCategory{})
 	db.AutoMigrate(&models.ForgotUser{})
+	db.AutoMigrate(&models.Message{})
+	db.AutoMigrate(&models.Follow{})
+	db.AutoMigrate(&models.Cart{})
+	db.AutoMigrate(&models.WishList{})
 	DB = db
 }

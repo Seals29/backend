@@ -9,6 +9,7 @@ import (
 	"github.com/Seals29/config"
 	"github.com/Seals29/models"
 	"github.com/gin-gonic/gin"
+	"github.com/nyaruka/phonenumbers"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -41,6 +42,23 @@ func GetShops(c *gin.Context) {
 	shop := []models.Shop{}
 	config.DB.Find(&shop)
 	c.JSON(200, &shop)
+}
+func GetCategoryByShopId(c *gin.Context) {
+	shopid := c.Param("shopid")
+	var product []string
+	config.DB.Model(models.Product{}).Joins(`join shops on products.shop_id = shops.ID`).
+		Select("category").Where("shop_id = ?", shopid).Find(&product)
+	c.JSON(200, &product)
+}
+func GetUserShopId(c *gin.Context) {
+	id := c.Param("id")
+	var shop models.Shop
+	config.DB.Where("id = ?", id).First(&shop)
+	var user models.User
+	config.DB.Where("email = ?", shop.Email).First(&user)
+	fmt.Println(user)
+	fmt.Println("id : " + id + " shop : " + shop.Name)
+	c.JSON(200, &user)
 }
 func InsertUser(c *gin.Context) {
 	var user models.User
@@ -279,6 +297,7 @@ func UpdateShopPassword(c *gin.Context) {
 		return
 	}
 }
+
 func SetBan(c *gin.Context) {
 	var body struct {
 		IsBan bool   `json:"isban"`
@@ -326,6 +345,7 @@ func CreateProduct(c *gin.Context) {
 	var body struct {
 		Name        string `json:"name"`
 		Category    string `json:"category"`
+		SubCategory string `json:"subcategory"`
 		Price       string `json:"price"`
 		Email       string `json:"email"`
 		Description string `json:"description"`
@@ -403,6 +423,7 @@ func CreateProduct(c *gin.Context) {
 		Stock:       stock,
 		Detail:      body.Detail,
 		ShopID:      shopid,
+		SubCategory: body.SubCategory,
 	}
 	fmt.Println(product)
 	config.DB.Create(&product)
@@ -412,5 +433,102 @@ func CreateProduct(c *gin.Context) {
 	return
 }
 func getProduct(c *gin.Context) {
+
+}
+func UpdateAccountEmail(c *gin.Context) {
+	var body struct {
+		Email string `json:"email"`
+	}
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body1",
+		})
+		return
+	}
+	if EmailValidation(body.Email) {
+		var checkuser models.User
+
+		checkUniqueEmail := config.DB.Where("email = ?", body.Email).First(&checkuser)
+		if checkUniqueEmail.Error == gorm.ErrRecordNotFound {
+			checkuser.Email = body.Email
+			config.DB.Save(&checkuser)
+			c.JSON(200, &checkuser)
+
+		} else {
+			c.JSON(200, gin.H{
+				"error": "Email is not Unique",
+			})
+			return
+		}
+	} else {
+		c.JSON(200, gin.H{
+			"error": "Email is not in an email format!",
+		})
+		return
+	}
+}
+func UpdateAccountPhoneNumber(c *gin.Context) {
+	var body struct {
+		UserID      string `json:"userid"`
+		PhoneNumber string `json:"phonenumber"`
+	}
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body1",
+		})
+		return
+	}
+	parsed, err := phonenumbers.Parse(body.PhoneNumber, "ID")
+
+	if err != nil || !phonenumbers.IsValidNumber(parsed) {
+		c.JSON(200, gin.H{
+			"error": "Invalid Phone Number",
+		})
+		return
+	}
+	last := phonenumbers.Format(parsed, phonenumbers.INTERNATIONAL)
+	var user models.User
+	userID, err := strconv.Atoi(body.UserID)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"error": "Failed convert userid",
+		})
+		return
+	}
+	config.DB.Where("ID = ?", userID).First(&user)
+	user.PhoneNumber = last
+	config.DB.Save(&user)
+	c.JSON(200, &user)
+
+}
+func UpdateAccountPassword(c *gin.Context) {
+	var body struct {
+		UserID      string `json:"userid"`
+		OldPassword string `json:"oldpassword"`
+		NewPassword string `json:"newpassword"`
+	}
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body1",
+		})
+		return
+	}
+	if len(body.OldPassword) <= 0 || len(body.NewPassword) <= 0 {
+		c.JSON(200, gin.H{
+			"error": "Old Password cannot be empty",
+		})
+		return
+	}
+	var user models.User
+	config.DB.Where("ID = ?", body.UserID).First(&user)
+	if user.ID == 0 {
+		c.JSON(200, gin.H{
+			"error": "User not Found!",
+		})
+		return
+	}
+	c.JSON(200, &user)
 
 }

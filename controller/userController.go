@@ -127,6 +127,11 @@ func SignUp(c *gin.Context) {
 	//hash the pass
 
 }
+func GetAllProduct(c *gin.Context) {
+	products := []models.Product{}
+	config.DB.Find(&products)
+	c.JSON(200, &products)
+}
 func Getproduct(c *gin.Context) {
 	var body struct {
 		Email string `json:"email"`
@@ -522,6 +527,16 @@ func NotifyShop(c *gin.Context) {
 		"message": "Shop account has been verified",
 	})
 }
+func GetOneProduct(c *gin.Context) {
+	id := c.Param("id")
+	var product models.Product
+	fmt.Println(id)
+	fmt.Println(product)
+	fmt.Println("====getoneproduct")
+	config.DB.Where("id = ?", string(id)).Find(&product)
+	fmt.Println(product)
+	c.JSON(200, &product)
+}
 func GetDetailProduct(c *gin.Context) {
 	var body struct {
 		ProductID string `json:"productid"`
@@ -538,6 +553,67 @@ func GetDetailProduct(c *gin.Context) {
 	config.DB.Where("id = ?", body.ProductID).First(&product)
 	c.JSON(200, &product)
 	return
+}
+func GetSingleShop(c *gin.Context) {
+	id := c.Param("id")
+	var shop models.Shop
+	config.DB.Where("id = ?", id).First(&shop)
+	fmt.Println("id : " + id + " shop : " + shop.Name)
+	c.JSON(200, &shop)
+	// id := c.Param("id")
+	// product := []models.Product{}
+	// fmt.Println(id)
+	// var shop models.Shop
+	// config.DB.Where("id = ?", string(id)).First(&shop)
+	// config.DB.Where("shop_email= ?", shop.Email).Find(&product)
+	// fmt.Println(product)
+	// fmt.Println("email :" + shop.Email)
+	// // fmt.Println("shopid : " + string(shop.ID))
+	// fmt.Println(shop)
+	// fmt.Println("====GETALLPRODUCTBYSHOP")
+	// c.JSON(200, &product)
+}
+func GetOneShop(c *gin.Context) {
+	var body struct {
+		ShopEmail string `json:"shopemail"`
+	}
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body1",
+		})
+		return
+	}
+	fmt.Println("===")
+	fmt.Println(body)
+	var shop models.Shop
+	config.DB.Where("email = ?", body.ShopEmail).First(&shop)
+	c.JSON(200, &shop)
+}
+func GetOneShopID(c *gin.Context) {
+	id := c.Param("id")
+	var shop models.Shop
+	fmt.Println(id)
+	fmt.Println(shop)
+	fmt.Println("====getoneshopid")
+	config.DB.Where("id = ?", string(id)).First(&shop)
+	fmt.Println(shop)
+	c.JSON(200, &shop)
+}
+func GetAllProductByShop(c *gin.Context) {
+	id := c.Param("id")
+	product := []models.Product{}
+	fmt.Println(id)
+	var shop models.Shop
+	config.DB.Where("id = ?", string(id)).First(&shop)
+	config.DB.Where("shop_email= ?", shop.Email).Find(&product)
+	fmt.Println(product)
+	fmt.Println("email :" + shop.Email)
+	// fmt.Println("shopid : " + string(shop.ID))
+	fmt.Println(shop)
+	fmt.Println("====GETALLPRODUCTBYSHOP")
+	c.JSON(200, &product)
+	// user := []models.UserSubscribe{}
+	// config.DB.Where("id = ?", string(id)).First(&shop)
 }
 func UpdateProduct(c *gin.Context) {
 	var body struct {
