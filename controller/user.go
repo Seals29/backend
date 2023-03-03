@@ -21,7 +21,7 @@ func ValidateUser(c *gin.Context) {
 	if !ok {
 		c.JSON(200, "failed di ok")
 	}
-	fmt.Println(user.Email)
+	// fmt.Println(user.Email)
 	fmt.Println(val)
 	fmt.Println("==========")
 
@@ -56,8 +56,8 @@ func GetUserShopId(c *gin.Context) {
 	config.DB.Where("id = ?", id).First(&shop)
 	var user models.User
 	config.DB.Where("email = ?", shop.Email).First(&user)
-	fmt.Println(user)
-	fmt.Println("id : " + id + " shop : " + shop.Name)
+	// fmt.Println(user)
+	// fmt.Println("id : " + id + " shop : " + shop.Name)
 	c.JSON(200, &user)
 }
 func InsertUser(c *gin.Context) {
@@ -193,7 +193,7 @@ func SetBanUser(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(body)
+
 	if body.IsBan == false {
 		ban := true
 		var user models.User
@@ -262,8 +262,7 @@ func UpdateShopPassword(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println("===")
-	fmt.Println(body)
+
 	if len(body.OldPass) <= 0 || len(body.NewPass) == 0 {
 		c.JSON(200, gin.H{
 			"error": "Password cannot be empty",
@@ -425,7 +424,7 @@ func CreateProduct(c *gin.Context) {
 		ShopID:      shopid,
 		SubCategory: body.SubCategory,
 	}
-	fmt.Println(product)
+	// fmt.Println(product)
 	config.DB.Create(&product)
 	c.JSON(200, gin.H{
 		"message": "New Product Successfuly Created!",
@@ -437,11 +436,19 @@ func getProduct(c *gin.Context) {
 }
 func UpdateAccountEmail(c *gin.Context) {
 	var body struct {
-		Email string `json:"email"`
+		UserID string `json:"userid"`
+		Email  string `json:"email"`
 	}
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body1",
+		})
+		return
+	}
+	userid, err := strconv.Atoi(body.UserID)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"error": "Invalid Conversion",
 		})
 		return
 	}
@@ -451,8 +458,16 @@ func UpdateAccountEmail(c *gin.Context) {
 		checkUniqueEmail := config.DB.Where("email = ?", body.Email).First(&checkuser)
 		if checkUniqueEmail.Error == gorm.ErrRecordNotFound {
 			checkuser.Email = body.Email
-			config.DB.Save(&checkuser)
-			c.JSON(200, &checkuser)
+			var userEmail models.User
+			config.DB.Where("id = ?", userid).First(&userEmail)
+			userEmail.Email = body.Email
+			// fmt.Println(userEmail)
+			// fmt.Println(checkuser)
+			config.DB.Save(&userEmail)
+			c.JSON(200, gin.H{
+				"message":"Email has been changed successfully!",
+			})
+			return
 
 		} else {
 			c.JSON(200, gin.H{
@@ -497,9 +512,20 @@ func UpdateAccountPhoneNumber(c *gin.Context) {
 		return
 	}
 	config.DB.Where("ID = ?", userID).First(&user)
+
+	if(user.PhoneNumber==last){
+		c.JSON(200,gin.H{
+			"message":"You did not changed anything!",			
+		})
+		return
+
+	}
 	user.PhoneNumber = last
 	config.DB.Save(&user)
-	c.JSON(200, &user)
+	c.JSON(200, gin.H{
+		"message":"Phone Number successfully changed!",
+	})
+	return
 
 }
 func UpdateAccountPassword(c *gin.Context) {
@@ -517,7 +543,14 @@ func UpdateAccountPassword(c *gin.Context) {
 	}
 	if len(body.OldPassword) <= 0 || len(body.NewPassword) <= 0 {
 		c.JSON(200, gin.H{
-			"error": "Old Password cannot be empty",
+			"error": "Password cannot be empty",
+		})
+		return
+	}
+	if len(body.NewPassword)<=5{
+		c.JSON(200,gin.H{
+			"error":"New Password must be above 5 characters!",
+			
 		})
 		return
 	}

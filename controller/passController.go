@@ -68,7 +68,7 @@ func ResendOneTime(c *gin.Context) {
 		return
 	}
 	resetuser := models.ResetUser{
-		ExpiredDate: time.Now().Add(time.Minute * 5),
+		ExpiredDate: time.Now().Add(time.Minute * 15),
 		ResetCode:   int(intcode),
 		UserID:      int(user.ID),
 		Used:        false,

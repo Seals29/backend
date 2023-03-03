@@ -105,6 +105,14 @@ type WishList struct {
 	UserID int    `json:"userid"`
 }
 type WishListDetail struct {
+	gorm.Model
 	WishListID int `json:"wishlistid"`
 	ProductID  int `json:"productid"`
+	Quantity int `json:"quantity"`
+}
+type FollowingWishList struct {
+	gorm.Model
+	ID         int    `json:"id"`
+	WishlistID int    `json:"wishlistid"`
+	UserID     int    `json:"userid"`
 }

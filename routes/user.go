@@ -62,11 +62,21 @@ func UserRoute(route *gin.Engine) {
 	route.GET("/getallcarts")
 	//user
 	route.POST("/updateuserpassword", controller.UpdateAccountPassword)
+	route.POST("/updateuseremail", controller.UpdateAccountEmail)
+	route.POST("/updateuserphone", controller.UpdateAccountPhoneNumber)
 
 	//wishlist
-	route.GET("/getpublicwishlist")
+	route.GET("/getpublicwishlist", controller.GetPublicWishList)
 	route.GET("/getallwishlist", controller.GetAllWishList)
 	route.GET("/getwishlistbyid/:id", controller.GetWishListDetail)
 	route.POST("/createnewwishlist", controller.CreateNewWishlist)
-	route.POST("/updatewishliststatus",controller.UpdateWishListStatus)
+	route.POST("/AddNewProductIntoWishList", controller.AddNewProductIntoWishList)
+	route.POST("/updatewishliststatus", controller.UpdateWishListStatus)
+	route.GET("/getprivatewishlist", controller.GetPrivateWishList)
+	route.POST("/NewFollowWishList", controller.NewFollowWishList)
+	route.GET("/GetFollowWishListByUserId/:id", controller.GetFollowWishListByUserID)
+	route.GET("/GetFollowedWishListByWishListID/:id", controller.GetWishListByFollowedID)
+	route.GET("/getwishlistdetailbywishlistid/:id", controller.GetWishListDetailByWishListID)
+	route.POST("/getDWbyID", controller.GetDetailWishListByWishListID)
+	route.POST("/duplicatepublicwishlisttomywishlist",controller.DuplicatePublicWishlistToMyWishList)
 }

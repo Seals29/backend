@@ -228,8 +228,7 @@ func ResetPassword(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println("==")
-	fmt.Println(body)
+
 	c.JSON(200, &body)
 }
 func ResendForgotPassword(c *gin.Context) {
@@ -323,8 +322,6 @@ func VerifForgotPassword(c *gin.Context) {
 	}
 	var forgotuser models.ForgotUser
 	config.DB.Where("reset_code = ?", body.ResetCode).First(&forgotuser)
-	fmt.Println(forgotuser)
-	fmt.Println(body)
 	if forgotuser.Used == false {
 
 		if time.Now().Before(forgotuser.ExpiredDate) {
@@ -558,20 +555,8 @@ func GetSingleShop(c *gin.Context) {
 	id := c.Param("id")
 	var shop models.Shop
 	config.DB.Where("id = ?", id).First(&shop)
-	fmt.Println("id : " + id + " shop : " + shop.Name)
+
 	c.JSON(200, &shop)
-	// id := c.Param("id")
-	// product := []models.Product{}
-	// fmt.Println(id)
-	// var shop models.Shop
-	// config.DB.Where("id = ?", string(id)).First(&shop)
-	// config.DB.Where("shop_email= ?", shop.Email).Find(&product)
-	// fmt.Println(product)
-	// fmt.Println("email :" + shop.Email)
-	// // fmt.Println("shopid : " + string(shop.ID))
-	// fmt.Println(shop)
-	// fmt.Println("====GETALLPRODUCTBYSHOP")
-	// c.JSON(200, &product)
 }
 func GetOneShop(c *gin.Context) {
 	var body struct {
@@ -583,8 +568,7 @@ func GetOneShop(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println("===")
-	fmt.Println(body)
+
 	var shop models.Shop
 	config.DB.Where("email = ?", body.ShopEmail).First(&shop)
 	c.JSON(200, &shop)
@@ -592,25 +576,17 @@ func GetOneShop(c *gin.Context) {
 func GetOneShopID(c *gin.Context) {
 	id := c.Param("id")
 	var shop models.Shop
-	fmt.Println(id)
-	fmt.Println(shop)
-	fmt.Println("====getoneshopid")
+
 	config.DB.Where("id = ?", string(id)).First(&shop)
-	fmt.Println(shop)
 	c.JSON(200, &shop)
 }
 func GetAllProductByShop(c *gin.Context) {
 	id := c.Param("id")
 	product := []models.Product{}
-	fmt.Println(id)
+
 	var shop models.Shop
 	config.DB.Where("id = ?", string(id)).First(&shop)
 	config.DB.Where("shop_email= ?", shop.Email).Find(&product)
-	fmt.Println(product)
-	fmt.Println("email :" + shop.Email)
-	// fmt.Println("shopid : " + string(shop.ID))
-	fmt.Println(shop)
-	fmt.Println("====GETALLPRODUCTBYSHOP")
 	c.JSON(200, &product)
 	// user := []models.UserSubscribe{}
 	// config.DB.Where("id = ?", string(id)).First(&shop)

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -46,7 +45,7 @@ func InsertCart(c *gin.Context) {
 		return
 	}
 	var cart models.Cart
-	fmt.Println(body)
+	// fmt.Println(body)
 	productId, errid := strconv.Atoi(body.ProductID)
 	if errid != nil {
 		c.JSON(200, gin.H{
