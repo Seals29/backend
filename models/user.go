@@ -116,3 +116,13 @@ type FollowingWishList struct {
 	WishlistID int    `json:"wishlistid"`
 	UserID     int    `json:"userid"`
 }
+type Voucher struct {
+	gorm.Model
+	VoucherCode string `json:"vouchercode"`
+	VoucherCurrency int `json:"vouchercurrency"`
+}
+type CommentWishList struct{
+	gorm.Model
+	CommentWL string `json:"commentwl"`
+	WishListID int `json:"wishlistid"`
+}

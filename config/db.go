@@ -31,5 +31,6 @@ func Connect() {
 	db.AutoMigrate(&models.WishList{})
 	db.AutoMigrate(&models.FollowingWishList{})
 	db.AutoMigrate(&models.WishListDetail{})
+	db.AutoMigrate(&models.Voucher{})
 	DB = db
 }

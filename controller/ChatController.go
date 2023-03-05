@@ -110,3 +110,8 @@ func SendingMessage(c *gin.Context) {
 
 	}
 }
+func GetAllMsg(c *gin.Context){
+	messages := []models.Message{}
+	config.DB.Find(&messages)
+	c.JSON(200,&messages)
+}

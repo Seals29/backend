@@ -35,15 +35,17 @@ func UserRoute(route *gin.Engine) {
 	route.POST("/verifassistance", controller.VerifForgotPassword)
 	route.POST("/updateuserpass", controller.UpdateUserPassword)
 	route.GET("/getallproduct", controller.GetAllProduct)
-	route.GET("/message", controller.SendingMessage)
-	route.GET("/message/:id", controller.SendingMessage)
 
 	route.POST("/insertcart", controller.InsertCart)
 	route.GET("/getproduct/:id", controller.GetOneProduct)
 
 	route.POST("/viewallmessage", controller.GetAllShopMsg)
-
+	//chat
+	route.GET("/message", controller.SendingMessage)
+	// route.GET("/message/:id", controller.SendingMessage)
+	route.GET("/getallmessage", controller.GetAllMsg)
 	//Shop
+
 	route.GET("/getoneshop/:id", controller.GetOneShopID)
 	route.GET("/getallproductbyshop/:id", controller.GetAllProductByShop)
 	route.POST("/getoneshop", controller.GetOneShop)
@@ -57,14 +59,15 @@ func UserRoute(route *gin.Engine) {
 	route.GET("/getproductcategory/:category", controller.GetProductByCategory)
 	route.GET("/getallsubcategory", controller.GetAllSubCategory)
 	route.GET("/getallcategory", controller.GetAllCategory)
-
+	route.GET("/loadProducts",controller.LoadProductByPage)
 	//cart
 	route.GET("/getallcarts")
 	//user
+	route.POST("/subcribenewsfromhome", controller.SubscribeFromHome)
 	route.POST("/updateuserpassword", controller.UpdateAccountPassword)
 	route.POST("/updateuseremail", controller.UpdateAccountEmail)
 	route.POST("/updateuserphone", controller.UpdateAccountPhoneNumber)
-
+	route.POST("/getsubscribestatus", controller.GetSubscribeStatus)
 	//wishlist
 	route.GET("/getpublicwishlist", controller.GetPublicWishList)
 	route.GET("/getallwishlist", controller.GetAllWishList)
@@ -78,5 +81,12 @@ func UserRoute(route *gin.Engine) {
 	route.GET("/GetFollowedWishListByWishListID/:id", controller.GetWishListByFollowedID)
 	route.GET("/getwishlistdetailbywishlistid/:id", controller.GetWishListDetailByWishListID)
 	route.POST("/getDWbyID", controller.GetDetailWishListByWishListID)
-	route.POST("/duplicatepublicwishlisttomywishlist",controller.DuplicatePublicWishlistToMyWishList)
+	route.POST("/duplicatepublicwishlisttomywishlist", controller.DuplicatePublicWishlistToMyWishList)
+	route.POST("/updatewishlistuser", controller.UpdateWishListUser)
+	route.POST("/deleteproductfromwishlistid",controller.DeleteProductFromWishListID)
+	route.POST("/addtocartfromwishlist",controller.AddToCartFromWishList)
+	
+	//voucher
+	route.POST("/newvoucher", controller.NewVoucher)
+	route.POST("/checkvoucher", controller.CheckVoucher)
 }

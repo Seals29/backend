@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -23,6 +24,25 @@ func GetAllCategory(c *gin.Context) {
 	category := []models.ProductCategory{}
 	config.DB.Find(&category)
 	c.JSON(200, &category)
+}
+func LoadProductByPage(c *gin.Context){
+	page := c.Query("page")
+	pageSize := c.Query("pagesize")
+	Page ,errp:= strconv.Atoi(page)
+	fmt.Println(page)
+	pagesize,errps := strconv.Atoi(pageSize)
+	if errps !=nil||errp!=nil {
+		c.JSON(200,gin.H{
+			"error":"invalid Parsing!",
+		})
+		return
+	}
+	products:= []models.Product{}
+	config.DB.Offset(pagesize * Page).Limit(pagesize).Find(&products)
+	fmt.Println(products)
+
+	// fmt.Println(products)
+	c.JSON(200,&products)
 }
 func GetProductByCategory(c *gin.Context) {
 	shopid := c.Param("id")

@@ -528,6 +528,35 @@ func UpdateAccountPhoneNumber(c *gin.Context) {
 	return
 
 }
+func SubscribeFromHome(c *gin.Context){
+	var body struct{
+		UserEmail string `json:"useremail"`
+	}
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body1",
+		})
+		return
+	}
+	var user models.User
+	config.DB.Where("email = ?",body.UserEmail).First(&user)
+	var subscribeUser models.UserSubscribe
+	config.DB.Where("user_email = ?",body.UserEmail).First(&subscribeUser)
+	// config.DB.Create(&subscribeUser)
+	c.JSON(200,&subscribeUser)
+	if subscribeUser.ID==0{
+		var newSubscriber models.UserSubscribe
+		newSubscriber.UserEmail=body.UserEmail
+		config.DB.Create(&newSubscriber)
+		c.JSON(200,&newSubscriber)
+		return
+	}else{
+		c.JSON(200,gin.H{
+			"error":"Invalid email!",
+		})
+		return
+	}
+}
 func UpdateAccountPassword(c *gin.Context) {
 	var body struct {
 		UserID      string `json:"userid"`
@@ -538,6 +567,12 @@ func UpdateAccountPassword(c *gin.Context) {
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body1",
+		})
+		return
+	}
+	if body.NewPassword == body.OldPassword{
+		c.JSON(200,gin.H{
+			"error":"cannot be the same with old password",
 		})
 		return
 	}
@@ -562,6 +597,58 @@ func UpdateAccountPassword(c *gin.Context) {
 		})
 		return
 	}
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.OldPassword)) == nil {
+		newHashed, err := bcrypt.GenerateFromPassword([]byte(body.NewPassword), 10)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to read body2",
+			})
+			return
+		}
+		stringHased := string(newHashed)
+		user.Password = stringHased
+		config.DB.Save(&user)
+		c.JSON(200, gin.H{
+			"success": "New password successfully changed!",
+		})
+
+	} else {
+		c.JSON(200, gin.H{
+			"error": "Old password is not match!",
+		})
+		return
+	}
 	c.JSON(200, &user)
 
+}
+func GetSubscribeStatus(c *gin.Context){
+	var body struct{
+		UserID string `json:"userid"`
+	}
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body1",
+		})
+		return
+	}
+	var currUser models.User
+	var subscribeCheck models.UserSubscribe
+	config.DB.Where("id = ?",body.UserID).First(&currUser)
+	config.DB.Where("user_email = ?",currUser.Email).First(&subscribeCheck)
+	if subscribeCheck.ID==0{
+		//ga ada subscribe
+		var newSubscribe models.UserSubscribe
+		newSubscribe.UserEmail=currUser.Email
+		config.DB.Create(&newSubscribe)
+		c.JSON(200,gin.H{
+			"message":"Not Subscribed",
+		})
+		return
+	}else{
+		//subscribed
+		c.JSON(200,gin.H{
+			"error":"Subscribed",
+		})
+		return
+	}
 }
