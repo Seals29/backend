@@ -25,24 +25,24 @@ func GetAllCategory(c *gin.Context) {
 	config.DB.Find(&category)
 	c.JSON(200, &category)
 }
-func LoadProductByPage(c *gin.Context){
+func LoadProductByPage(c *gin.Context) {
 	page := c.Query("page")
 	pageSize := c.Query("pagesize")
-	Page ,errp:= strconv.Atoi(page)
+	Page, errp := strconv.Atoi(page)
 	fmt.Println(page)
-	pagesize,errps := strconv.Atoi(pageSize)
-	if errps !=nil||errp!=nil {
-		c.JSON(200,gin.H{
-			"error":"invalid Parsing!",
+	pagesize, errps := strconv.Atoi(pageSize)
+	if errps != nil || errp != nil {
+		c.JSON(200, gin.H{
+			"error": "invalid Parsing!",
 		})
 		return
 	}
-	products:= []models.Product{}
+	products := []models.Product{}
 	config.DB.Offset(pagesize * Page).Limit(pagesize).Find(&products)
 	fmt.Println(products)
 
 	// fmt.Println(products)
-	c.JSON(200,&products)
+	c.JSON(200, &products)
 }
 func GetProductByCategory(c *gin.Context) {
 	shopid := c.Param("id")
@@ -81,6 +81,7 @@ func InsertCart(c *gin.Context) {
 		})
 		return
 	}
+
 	cart.Quantity = Quantity
 
 	UserID, erruserId := strconv.Atoi(body.UserID)
@@ -102,4 +103,63 @@ func InsertCart(c *gin.Context) {
 
 	c.JSON(200, &checkcart)
 
+}
+func GetReviewsByShop(c *gin.Context) {
+	shopId := c.Query("shopid")
+	shopid, errshop := strconv.Atoi(shopId)
+	fmt.Println(shopId)
+	if errshop != nil {
+		c.JSON(200, gin.H{
+			"error": "Invalid Conversion!",
+		})
+		return
+	}
+	reviews := []models.ShopReview{}
+	config.DB.Where("shop_id = ?", shopid).Find(&reviews)
+	c.JSON(200, &reviews)
+}
+func AddNewReviewShop(c *gin.Context) {
+	var body struct {
+		UserID string `json:"userid"`
+		ShopID string `json:"shopid"`
+		Review string `json:"review"`
+		Rating string `json:"rating"`
+	}
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body1",
+		})
+		return
+	}
+	userid, errus := strconv.Atoi(body.UserID)
+	shopid, errshop := strconv.Atoi(body.ShopID)
+	rating, errrate := strconv.Atoi(body.Rating)
+	if errus != nil || errshop != nil || errrate != nil {
+		c.JSON(200, gin.H{
+			"error": "Invalid Parsing",
+		})
+		return
+	}
+	var user models.User
+	config.DB.Where("id = ?", userid).First(&user)
+	newReview := models.ShopReview{
+		UserID:        userid,
+		Rating:        rating,
+		ReviewComment: body.Review,
+		ShopID:        shopid,
+		IsHelpFull:    false,
+	}
+	config.DB.Create(&newReview)
+	allReview := []models.ShopReview{}
+	config.DB.Where("shop_id = ?", shopid).Find(&allReview)
+	// length := len(allReview)
+	avg := config.DB.Table("shop_reviews").Select("AVG(rating)").Row()
+	var total float64
+	avg.Scan(&total)
+	fmt.Println(total)
+	var myshop models.Shop
+	config.DB.Where("id = ?",shopid).First(&myshop)
+	myshop.Rating=total
+	config.DB.Save(&myshop)
+	c.JSON(200, &newReview)
 }

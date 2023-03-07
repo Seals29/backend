@@ -59,9 +59,9 @@ func UserRoute(route *gin.Engine) {
 	route.GET("/getproductcategory/:category", controller.GetProductByCategory)
 	route.GET("/getallsubcategory", controller.GetAllSubCategory)
 	route.GET("/getallcategory", controller.GetAllCategory)
-	route.GET("/loadProducts",controller.LoadProductByPage)
+	route.GET("/loadProducts", controller.LoadProductByPage)
 	//cart
-	route.GET("/getallcarts")
+	// route.GET("/getallcarts")
 	//user
 	route.POST("/subcribenewsfromhome", controller.SubscribeFromHome)
 	route.POST("/updateuserpassword", controller.UpdateAccountPassword)
@@ -69,6 +69,8 @@ func UserRoute(route *gin.Engine) {
 	route.POST("/updateuserphone", controller.UpdateAccountPhoneNumber)
 	route.POST("/getsubscribestatus", controller.GetSubscribeStatus)
 	//wishlist
+	route.GET("/getallcommentwishlist", controller.GetAllCommentWishlist)
+	route.POST("/newcommentwishlist", controller.CommentWishList)
 	route.GET("/getpublicwishlist", controller.GetPublicWishList)
 	route.GET("/getallwishlist", controller.GetAllWishList)
 	route.GET("/getwishlistbyid/:id", controller.GetWishListDetail)
@@ -83,10 +85,27 @@ func UserRoute(route *gin.Engine) {
 	route.POST("/getDWbyID", controller.GetDetailWishListByWishListID)
 	route.POST("/duplicatepublicwishlisttomywishlist", controller.DuplicatePublicWishlistToMyWishList)
 	route.POST("/updatewishlistuser", controller.UpdateWishListUser)
-	route.POST("/deleteproductfromwishlistid",controller.DeleteProductFromWishListID)
-	route.POST("/addtocartfromwishlist",controller.AddToCartFromWishList)
-	
+	route.POST("/deleteproductfromwishlistid", controller.DeleteProductFromWishListID)
+	route.POST("/addtocartfromwishlist", controller.AddToCartFromWishList)
+
 	//voucher
 	route.POST("/newvoucher", controller.NewVoucher)
 	route.POST("/checkvoucher", controller.CheckVoucher)
+
+	//cart
+	route.GET("/getallcarts", controller.GetAllCart)
+	route.GET("/getallsavelaters", controller.GetAllSavelater)
+	route.POST("/deleteitemincart", controller.DeleteProductInCart)
+	route.POST("/movecarttosavelater", controller.MoveCartToSave)
+
+	//checkout
+	route.POST("/newaddress", controller.NewAddress)
+	route.GET("/getalladdress", controller.GetAllAddress)
+	route.POST("/checkout", controller.CheckoutToOrderPage)
+	//review shop
+	route.POST("/newreviewshop", controller.AddNewReviewShop)
+	route.GET("/getreviewbyshopid", controller.GetReviewsByShop)
+
+	//orders
+	
 }

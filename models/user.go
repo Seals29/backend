@@ -90,13 +90,36 @@ type Cart struct {
 	UserID    int `json:"userid"`
 	Quantity  int `json:"quantity"`
 }
+type CustomerAddress struct {
+	gorm.Model
+	IsActive     bool   `json:"isactive"`
+	UserID       int    `json:"userid"`
+	ReceiverName string `json:"receivername"`
+	AddressField string `json:"addressfield"`
+}
+type SaveLater struct {
+	gorm.Model
+	ProductID int `json:"productid"`
+	UserID    int `json:"userid"`
+	Quantity  int `json:"quantity"`
+}
 type Follow struct {
 	gorm.Model
 	FollowTo   int `json:"followto"`
 	FollowedBy int `json:"followedby"`
 	IsFollow   int `json:"isfollow"`
 }
-
+type Order struct {
+	gorm.Model
+	UserID        int    `json:"userid"`
+	ProductID     int    `json:"productid"`
+	ShopID        int    `json:"shopid"`
+	PaymentMethod string `json:"paymentmethod"`
+	Receiver      string `json:"receiver"`
+	Address       string `json:"address"`
+	Delivery      string `json:"delivery"`
+	ProductTotal  int    `json:"producttotal"`
+}
 type WishList struct {
 	gorm.Model
 	Name   string `json:"name"`
@@ -108,21 +131,30 @@ type WishListDetail struct {
 	gorm.Model
 	WishListID int `json:"wishlistid"`
 	ProductID  int `json:"productid"`
-	Quantity int `json:"quantity"`
+	Quantity   int `json:"quantity"`
 }
 type FollowingWishList struct {
 	gorm.Model
-	ID         int    `json:"id"`
-	WishlistID int    `json:"wishlistid"`
-	UserID     int    `json:"userid"`
+	ID         int `json:"id"`
+	WishlistID int `json:"wishlistid"`
+	UserID     int `json:"userid"`
 }
 type Voucher struct {
 	gorm.Model
-	VoucherCode string `json:"vouchercode"`
-	VoucherCurrency int `json:"vouchercurrency"`
+	VoucherCode     string `json:"vouchercode"`
+	VoucherCurrency int    `json:"vouchercurrency"`
 }
-type CommentWishList struct{
+type CommentWishList struct {
 	gorm.Model
-	CommentWL string `json:"commentwl"`
-	WishListID int `json:"wishlistid"`
+	Username       string `json:"username"`
+	CommentMessage string `json:"commentmessage"`
+	WishListID     int    `json:"wishlistid"`
+}
+type ShopReview struct {
+	gorm.Model
+	UserID        int    `json:"userid"`
+	ShopID        int    `json:"shopid"`
+	Rating        int    `json:"starreview"`
+	ReviewComment string `json:"reviewcomment"`
+	IsHelpFull    bool   `json:"ishelpfull"`
 }

@@ -10,6 +10,59 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func GetAllCommentWishlist(c *gin.Context) {
+	wishlistid := c.Query("id")
+	allcomment := []models.CommentWishList{}
+	config.DB.Where("wish_list_id = ?", wishlistid).Find(&allcomment)
+	c.JSON(200, &allcomment)
+	fmt.Println(allcomment)
+	fmt.Println(wishlistid)
+	fmt.Println("==ggetallwishlistcomment")
+}
+func CommentWishList(c *gin.Context) {
+	var body struct {
+		IsAnon         bool   `json:"isanon"`
+		UserID         string `json:"userid"`
+		WishListID     string `json:"wishlistid"`
+		CommentMessage string `json:"commentmessage"`
+	}
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body1",
+		})
+		return
+	}
+	userid, erruser := strconv.Atoi(body.UserID)
+	wishlistid, errwish := strconv.Atoi(body.WishListID)
+	fmt.Println(body)
+	if erruser != nil || errwish != nil {
+		c.JSON(200, gin.H{
+			"error": "Invalid Conversion string to int",
+		})
+		return
+	}
+	var checkusername models.User
+	config.DB.Where("id = ?", userid).First(&checkusername)
+	var username string
+
+	if body.IsAnon == false {
+		username = checkusername.FirstName
+	}
+	if body.IsAnon == true {
+		username = "Anonymous!"
+	}
+
+	newcomment := models.CommentWishList{
+		WishListID:     wishlistid,
+		Username:       username,
+		CommentMessage: body.CommentMessage,
+	}
+	fmt.Print(newcomment)
+	config.DB.Create(&newcomment)
+	c.JSON(200, &newcomment)
+	// return
+
+}
 func GetAllWishList(c *gin.Context) {
 	wishlist := []models.WishList{}
 	config.DB.Find(&wishlist)
@@ -170,10 +223,10 @@ func GetFollowWishListByUserID(c *gin.Context) {
 	c.JSON(200, &allfollowwishlist)
 	return
 }
-func DeleteProductFromWishListID(c *gin.Context){
+func DeleteProductFromWishListID(c *gin.Context) {
 	var body struct {
 		WishListID string `json:"wishlistid"`
-		ProductID string `json:"productid"`
+		ProductID  string `json:"productid"`
 	}
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -182,28 +235,28 @@ func DeleteProductFromWishListID(c *gin.Context){
 		return
 	}
 	var checkWishDetail models.WishListDetail
-	productid ,errpr := strconv.Atoi(body.ProductID)
-	wishid ,errwish := strconv.Atoi(body.WishListID)
+	productid, errpr := strconv.Atoi(body.ProductID)
+	wishid, errwish := strconv.Atoi(body.WishListID)
 	fmt.Println(body)
-	if errpr!=nil||errwish!=nil{
-		c.JSON(200,gin.H{
-			"error":"Invalid Parsing!",
+	if errpr != nil || errwish != nil {
+		c.JSON(200, gin.H{
+			"error": "Invalid Parsing!",
 		})
 		return
 	}
-	config.DB.Where("product_id = ?",productid).Where("wish_list_id = ?",wishid).First(&checkWishDetail)
+	config.DB.Where("product_id = ?", productid).Where("wish_list_id = ?", wishid).First(&checkWishDetail)
 	fmt.Println(checkWishDetail)
-	if checkWishDetail.ID==0{
+	if checkWishDetail.ID == 0 {
 		//ga nemu
-		c.JSON(200,gin.H{
-			"error":"Product Not Found in that wishlist!",
+		c.JSON(200, gin.H{
+			"error": "Product Not Found in that wishlist!",
 		})
 		return
-	}else{
+	} else {
 		config.DB.Delete(&checkWishDetail)
 
-		c.JSON(200,gin.H{
-			"message":"Product Successfully deleted from your wishlist!",
+		c.JSON(200, gin.H{
+			"message": "Product Successfully deleted from your wishlist!",
 		})
 		return
 	}
@@ -222,18 +275,18 @@ func UpdateWishListUser(c *gin.Context) {
 		return
 	}
 	var wishlist models.WishList
-	wishlisdid,errid := strconv.Atoi(body.WishListId)
-	if errid !=nil {
+	wishlisdid, errid := strconv.Atoi(body.WishListId)
+	if errid != nil {
 		c.JSON(200, gin.H{
-			"error":"Invalid Parsing",
+			"error": "Invalid Parsing",
 		})
 		return
 	}
-	config.DB.Where("id = ?",wishlisdid).First(&wishlist)
-	wishlist.Name=body.WishListName
-	wishlist.Status=body.WishListStatus
+	config.DB.Where("id = ?", wishlisdid).First(&wishlist)
+	wishlist.Name = body.WishListName
+	wishlist.Status = body.WishListStatus
 	config.DB.Save(&wishlist)
-	c.JSON(200,&wishlist)
+	c.JSON(200, &wishlist)
 }
 func GetWishListByFollowedID(c *gin.Context) {
 	wishlistID := c.Param("id")
@@ -366,9 +419,9 @@ func CreateNewWishlist(c *gin.Context) {
 	c.JSON(200, &wishlist)
 	return
 }
-func AddToCartFromWishList(c *gin.Context){
+func AddToCartFromWishList(c *gin.Context) {
 	var body struct {
-		UserID string `json:"userid"`
+		UserID     string `json:"userid"`
 		WishlistID string `json:"wishlistid"`
 		ProductID  string `json:"productid"`
 		Quantity   string `json:"quantity"`
@@ -383,10 +436,10 @@ func AddToCartFromWishList(c *gin.Context){
 	productid, errpr := strconv.Atoi(body.ProductID)
 	quantity, errq := strconv.Atoi(body.Quantity)
 	var wishdetail models.WishListDetail
-	config.DB.Where("wish_list_id = ?",wishlistid).Where("product_id=?",productid).First(&wishdetail)
+	config.DB.Where("wish_list_id = ?", wishlistid).Where("product_id=?", productid).First(&wishdetail)
 	fmt.Println(wishdetail)
-	userid, erruser := strconv.Atoi(body.UserID)	
-	if errwl != nil || errpr != nil || errq != nil||erruser!=nil {
+	userid, erruser := strconv.Atoi(body.UserID)
+	if errwl != nil || errpr != nil || errq != nil || erruser != nil {
 		c.JSON(200, gin.H{
 			"error": "Invalid Conversion",
 		})
@@ -394,13 +447,13 @@ func AddToCartFromWishList(c *gin.Context){
 	}
 	cart := models.Cart{
 		ProductID: productid,
-		UserID: userid,
-		Quantity: quantity,
+		UserID:    userid,
+		Quantity:  quantity,
 	}
 	// config.DB.Create(&cart)
 	fmt.Println(cart)
-	c.JSON(200,gin.H{
-		"message":"Product has been succesfully added to your cart!",
+	c.JSON(200, gin.H{
+		"message": "Product has been succesfully added to your cart!",
 	})
 	return
 
