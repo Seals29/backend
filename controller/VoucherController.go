@@ -38,7 +38,7 @@ func CheckVoucher(c *gin.Context){
 		var user models.User
 		config.DB.Where("id = ?",userid).First(&user)
 		
-		user.Balance = user.Balance + checkCode.VoucherCurrency
+		user.Balance = user.Balance + float64(checkCode.VoucherCurrency)
 		config.DB.Save(&user)
 		c.JSON(200,gin.H{
 			"message":"Code has been redeemed succesfully!",

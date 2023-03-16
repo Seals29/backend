@@ -55,11 +55,13 @@ func UserRoute(route *gin.Engine) {
 	route.GET("/getshop", controller.GetShops)
 	route.GET("/getusershopid/:id", controller.GetUserShopId)
 	route.GET("/getcategorybyshop/:shopid", controller.GetCategoryByShopId)
+	route.GET("/getshopidbyuserid", controller.GetShopIDByUserID)
 	//product
 	route.GET("/getproductcategory/:category", controller.GetProductByCategory)
 	route.GET("/getallsubcategory", controller.GetAllSubCategory)
 	route.GET("/getallcategory", controller.GetAllCategory)
 	route.GET("/loadProducts", controller.LoadProductByPage)
+	route.GET("/getsimilarproductbycategory", controller.GetSimilarProductCategory)
 	//cart
 	// route.GET("/getallcarts")
 	//user
@@ -69,6 +71,8 @@ func UserRoute(route *gin.Engine) {
 	route.POST("/updateuserphone", controller.UpdateAccountPhoneNumber)
 	route.POST("/getsubscribestatus", controller.GetSubscribeStatus)
 	//wishlist
+	route.GET("/updatenotes", controller.UpdateNotes)
+
 	route.GET("/getallcommentwishlist", controller.GetAllCommentWishlist)
 	route.POST("/newcommentwishlist", controller.CommentWishList)
 	route.GET("/getpublicwishlist", controller.GetPublicWishList)
@@ -87,7 +91,7 @@ func UserRoute(route *gin.Engine) {
 	route.POST("/updatewishlistuser", controller.UpdateWishListUser)
 	route.POST("/deleteproductfromwishlistid", controller.DeleteProductFromWishListID)
 	route.POST("/addtocartfromwishlist", controller.AddToCartFromWishList)
-
+	route.POST("/updatequantityproduct", controller.UpdateAddQuantityProduct)
 	//voucher
 	route.POST("/newvoucher", controller.NewVoucher)
 	route.POST("/checkvoucher", controller.CheckVoucher)
@@ -97,15 +101,28 @@ func UserRoute(route *gin.Engine) {
 	route.GET("/getallsavelaters", controller.GetAllSavelater)
 	route.POST("/deleteitemincart", controller.DeleteProductInCart)
 	route.POST("/movecarttosavelater", controller.MoveCartToSave)
-
+	route.POST("/calculatetotalprice", controller.CalculateTotalPriceByEachCart)
+	route.POST("/calculatetotalpricebyuser", controller.CalculateTotalPriceByEachUser)
 	//checkout
 	route.POST("/newaddress", controller.NewAddress)
 	route.GET("/getalladdress", controller.GetAllAddress)
 	route.POST("/checkout", controller.CheckoutToOrderPage)
+	route.POST("/createneworder", controller.CreateNewOrders)
+
 	//review shop
 	route.POST("/newreviewshop", controller.AddNewReviewShop)
 	route.GET("/getreviewbyshopid", controller.GetReviewsByShop)
 
 	//orders
-	
+	route.GET("/getorders", controller.GetOrders)
+	route.POST("/getallordersbyuserid", controller.GetAllOrdersByUserID)
+	route.POST("/getallordersbyshopid", controller.GetAllOrdersByShopID)
+	route.POST("/getuserdetailbyorderid", controller.GetUseDetailByOrderID)
+	route.POST("/getshopnamebyshopid", controller.GetShopNameByShopID)
+	route.GET("/getorderbyorderid", controller.GetOrderByOrderID)
+	route.POST("/getorderdetailbyorderid", controller.AddAllOrderDetailToCart)
+	//banner
+	route.GET("/getbanner", controller.TestData)
+	route.POST("/addpromotionbanner", controller.AddPromotionBanner)
+	route.POST("/rmvpromotionbanner", controller.DeletePromotionBanner)
 }

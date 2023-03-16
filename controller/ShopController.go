@@ -45,12 +45,26 @@ func LoadProductByPage(c *gin.Context) {
 	c.JSON(200, &products)
 }
 func GetProductByCategory(c *gin.Context) {
-	shopid := c.Param("id")
+	shopid := c.Param("category")
 	products := []models.Product{}
 	config.DB.Where("shop_id = ?", shopid).Find(&products)
-
+	fmt.Println(shopid)
 	// shop := []models.Shop{}
-	c.JSON(200, &products)
+	var categories []string
+	if err := config.DB.Table("product_categories").
+		Joins("JOIN products ON product_categories.name = products.category").
+		Where("products.shop_id = ?", shopid).
+		Distinct("product_categories.name").
+		Pluck("product_categories.name", &categories).
+		Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to get product categories"})
+		return
+	}
+	// stmt:=
+	// fmt.Println("====getproductcategorybyshopid")
+	fmt.Println(categories)
+
+	c.JSON(200, &categories)
 }
 func InsertCart(c *gin.Context) {
 	var body struct {
@@ -158,8 +172,39 @@ func AddNewReviewShop(c *gin.Context) {
 	avg.Scan(&total)
 	fmt.Println(total)
 	var myshop models.Shop
-	config.DB.Where("id = ?",shopid).First(&myshop)
-	myshop.Rating=total
+	config.DB.Where("id = ?", shopid).First(&myshop)
+	myshop.Rating = total
 	config.DB.Save(&myshop)
 	c.JSON(200, &newReview)
+}
+func GetSimilarProductCategory(c *gin.Context) {
+	fmt.Println("asdas")
+	cat := c.Query("category")
+	fmt.Println(cat)
+	products := []models.Product{}
+
+	config.DB.Where("category= ?", cat).Find(&products)
+	fmt.Println(products)
+	c.JSON(200, &products)
+}
+
+// updatenotes
+func UpdateNotes(c *gin.Context) {
+	newNotes := c.Query("note")
+	wishid := c.Query("wishid")
+	wishIDint, errwish := strconv.Atoi(wishid)
+	if errwish != nil {
+		c.JSON(400, gin.H{
+			"error": "Invalid Parsing!",
+		})
+		return
+	}
+	fmt.Println(newNotes)
+	fmt.Println(wishid)
+	var currwish models.WishList
+	config.DB.Where("id= ?", wishIDint).First(&currwish)
+	currwish.Note = newNotes
+	config.DB.Save(&currwish)
+	fmt.Println(currwish)
+	c.JSON(200, &currwish)
 }

@@ -3,11 +3,13 @@ package controller
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/Seals29/config"
 	"github.com/Seals29/models"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func GetAllCommentWishlist(c *gin.Context) {
@@ -223,10 +225,40 @@ func GetFollowWishListByUserID(c *gin.Context) {
 	c.JSON(200, &allfollowwishlist)
 	return
 }
+func extractUserIDFromToken(tokenString string) (string, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Verify that the signing method is HMAC SHA256
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		// Return the secret key used to sign the token
+		return []byte(os.Getenv("SECRET")), nil
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("failed to parse token: %v", err)
+	}
+
+	// Extract the user ID from the token's claims
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("unexpected claims type: %T", token.Claims)
+	}
+
+	// userID, ok := claims["sub"].(string)
+	// if !ok {
+	//     return "", fmt.Errorf("unexpected user ID type: %T", claims["sub"])
+	// }
+	userID := fmt.Sprintf("%.0f", claims["sub"])
+	return userID, nil
+}
 func DeleteProductFromWishListID(c *gin.Context) {
 	var body struct {
 		WishListID string `json:"wishlistid"`
 		ProductID  string `json:"productid"`
+		UserID     string `json:"userid"`
+		JwtToken   string `json:"jwttoken"`
 	}
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -234,16 +266,25 @@ func DeleteProductFromWishListID(c *gin.Context) {
 		})
 		return
 	}
+	fmt.Println(body.JwtToken)
+	curruser, err := extractUserIDFromToken(body.JwtToken)
+	fmt.Println(err)
+	fmt.Println(curruser)
+	curruserID, errcurid := strconv.Atoi(curruser)
 	var checkWishDetail models.WishListDetail
+	userid, erruser := strconv.Atoi(body.UserID)
 	productid, errpr := strconv.Atoi(body.ProductID)
 	wishid, errwish := strconv.Atoi(body.WishListID)
 	fmt.Println(body)
-	if errpr != nil || errwish != nil {
+	if errpr != nil || errwish != nil || erruser != nil || errcurid != nil {
 		c.JSON(200, gin.H{
 			"error": "Invalid Parsing!",
 		})
 		return
 	}
+	var validateUser models.WishList
+	config.DB.Where("id = ?", wishid).Where("user_id=?", userid).First(&validateUser)
+	fmt.Println(validateUser)
 	config.DB.Where("product_id = ?", productid).Where("wish_list_id = ?", wishid).First(&checkWishDetail)
 	fmt.Println(checkWishDetail)
 	if checkWishDetail.ID == 0 {
@@ -253,12 +294,20 @@ func DeleteProductFromWishListID(c *gin.Context) {
 		})
 		return
 	} else {
-		config.DB.Delete(&checkWishDetail)
 
-		c.JSON(200, gin.H{
-			"message": "Product Successfully deleted from your wishlist!",
-		})
-		return
+		if curruserID == userid {
+			fmt.Println("userid sama maka boleh delete")
+			config.DB.Delete(&checkWishDetail)
+			c.JSON(200, gin.H{
+				"message": "Product Successfully deleted from your wishlist!",
+			})
+			return
+		} else {
+			c.JSON(404, gin.H{
+				"error": "You Are not authorized to update the items!",
+			})
+			return
+		}
 	}
 }
 func UpdateWishListUser(c *gin.Context) {
@@ -419,6 +468,54 @@ func CreateNewWishlist(c *gin.Context) {
 	c.JSON(200, &wishlist)
 	return
 }
+func UpdateAddQuantityProduct(c *gin.Context){
+	var body struct{
+		JwtToken string `json:"jwttoken"`
+		WishListID string `json:"wishlistid"`
+		ProductID string `json:"productid"`
+		Quantity string `json:"quantity"`
+	}
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body1",
+		})
+		return
+	}
+	curruser, err := extractUserIDFromToken(body.JwtToken)
+	curruserID, errcurid := strconv.Atoi(curruser)
+	fmt.Println(err)
+	wishlistid, errwl := strconv.Atoi(body.WishListID)
+	productid, errpr := strconv.Atoi(body.ProductID)
+	quantity, errq := strconv.Atoi(body.Quantity)
+	var wishdetail models.WishListDetail
+	config.DB.Where("wish_list_id = ?", wishlistid).Where("product_id=?", productid).First(&wishdetail)
+	fmt.Println(wishdetail)
+	if errwl != nil || errpr != nil || errq != nil || errcurid != nil {
+		c.JSON(200, gin.H{
+			"error": "Invalid Conversion",
+		})
+		return
+	}
+	var validateUser models.WishList
+	config.DB.Where("id = ?",wishlistid).Where("user_id = ?",curruserID).First(&validateUser)
+	if validateUser.ID==0{
+		c.JSON(400,gin.H{
+			"error":"You are unauthroized!",
+		})
+		return
+	}
+	if wishdetail.ID==0{
+		c.JSON(400,gin.H{
+			"error":"Product Not Found in wishlist",
+		})
+		return
+	}
+	wishdetail.Quantity=quantity;
+	config.DB.Save(&wishdetail)
+	c.JSON(200,gin.H{
+		"message":"Successfully updated!",
+	})
+}
 func AddToCartFromWishList(c *gin.Context) {
 	var body struct {
 		UserID     string `json:"userid"`
@@ -432,6 +529,7 @@ func AddToCartFromWishList(c *gin.Context) {
 		})
 		return
 	}
+	
 	wishlistid, errwl := strconv.Atoi(body.WishlistID)
 	productid, errpr := strconv.Atoi(body.ProductID)
 	quantity, errq := strconv.Atoi(body.Quantity)
@@ -458,3 +556,4 @@ func AddToCartFromWishList(c *gin.Context) {
 	return
 
 }
+

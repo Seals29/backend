@@ -37,5 +37,7 @@ func Connect() {
 	db.AutoMigrate(&models.CustomerAddress{})
 	db.AutoMigrate(&models.ShopReview{})
 	db.AutoMigrate(&models.Order{})
+	db.AutoMigrate(&models.OrderDetail{})
+	db.AutoMigrate(&models.PromotionBanner{})
 	DB = db
 }

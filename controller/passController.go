@@ -35,8 +35,8 @@ func ResendOneTime(c *gin.Context) {
 	}
 	auth := smtp.PlainAuth(
 		"",
-		"lionelriyadi13@gmail.com",
-		"tkfuhgsqnhhidrnb",
+		"myeggtpa@gmail.com",
+		"bkhdhydorzroeeld",
 		"smtp.gmail.com",
 	)
 	num, err := rand.Int(rand.Reader, big.NewInt(900000))
@@ -77,7 +77,7 @@ func ResendOneTime(c *gin.Context) {
 	err2 := smtp.SendMail(
 		"smtp.gmail.com:587",
 		auth,
-		"lionelriyadi13@gmail.com",
+		"myeggtpa@gmail.com",
 		[]string{body.Email},
 		[]byte(msg),
 	)
@@ -124,8 +124,8 @@ func SendOneTime(c *gin.Context) {
 		//send email
 		auth := smtp.PlainAuth(
 			"",
-			"lionelriyadi13@gmail.com",
-			"tkfuhgsqnhhidrnb",
+			"myeggtpa@gmail.com",
+			"bkhdhydorzroeeld",
 			"smtp.gmail.com",
 		)
 		intcode := int(num.Int64() + 100000)
@@ -150,7 +150,7 @@ func SendOneTime(c *gin.Context) {
 		err2 := smtp.SendMail(
 			"smtp.gmail.com:587",
 			auth,
-			"lionelriyadi13@gmail.com",
+			"myeggtpa@gmail.com",
 			[]string{body.Email},
 			[]byte(msg),
 		)
@@ -226,7 +226,7 @@ func OneTimeCode(c *gin.Context) {
 
 	}
 }
-func UpdatePassword(c gin.Context) {
+func UpdatePassword(c *gin.Context) {
 	var body struct {
 		Password string `json:"password"`
 	}

@@ -180,8 +180,8 @@ func LoginAssistance(c *gin.Context) {
 	} else {
 		auth := smtp.PlainAuth(
 			"",
-			"lionelriyadi13@gmail.com",
-			"tkfuhgsqnhhidrnb",
+			"myeggtpa@gmail.com",
+			"bkhdhydorzroeeld",
 			"smtp.gmail.com",
 		)
 		num, err := rand.Int(rand.Reader, big.NewInt(900000))
@@ -196,7 +196,7 @@ func LoginAssistance(c *gin.Context) {
 		smtp.SendMail(
 			"smtp.gmail.com:587",
 			auth,
-			"lionelriyadi13@gmail.com",
+			"myeggtpa@gmail.com",
 			[]string{body.Email},
 			[]byte(msg),
 		)
@@ -246,8 +246,8 @@ func ResendForgotPassword(c *gin.Context) {
 	config.DB.Model(&models.ForgotUser{}).Where("user_id = ?", user.ID).Update("used", true)
 	auth := smtp.PlainAuth(
 		"",
-		"lionelriyadi13@gmail.com",
-		"tkfuhgsqnhhidrnb",
+		"myeggtpa@gmail.com",
+		"bkhdhydorzroeeld",
 		"smtp.gmail.com",
 	)
 	num, err := rand.Int(rand.Reader, big.NewInt(900000))
@@ -262,7 +262,7 @@ func ResendForgotPassword(c *gin.Context) {
 	smtp.SendMail(
 		"smtp.gmail.com:587",
 		auth,
-		"lionelriyadi13@gmail.com",
+		"myeggtpa@gmail.com",
 		[]string{body.Email},
 		[]byte(msg),
 	)
@@ -454,35 +454,40 @@ func Announce(c *gin.Context) {
 	user := []models.UserSubscribe{}
 	config.DB.Find(&user)
 	allEmails := []string{}
-	for _, u := range user {
-		email := u.UserEmail
-		fmt.Println("Email:", email)
-		allEmails = append(allEmails, email)
-	}
-
+	// for _, u := range user {
+	// 	email := u.UserEmail
+	// 	fmt.Println("Email:", email)
+	// 	allEmails = append(allEmails, email)
+	// }
+	// admin@gmail.com tokopedia@gmail.com
+	allEmails= append(allEmails, "admin@gmail.com")
+	allEmails= append(allEmails, "tokopedia@gmail.com")
+	//problemnya ga bisa send terlalu byk
 	//email dapet di body
 	auth := smtp.PlainAuth(
 		"",
-		"lionelriyadi13@gmail.com",
-		"tkfuhgsqnhhidrnb",
+		"myeggtpa@gmail.com",
+		"bkhdhydorzroeeld",
 		"smtp.gmail.com",
 	)
-
+	fmt.Println(allEmails)
+	fmt.Println(body)
 	msg := "Subject: " + body.Subject + "\n" + body.Message
-	err := smtp.SendMail(
+	smtp.SendMail(
 		"smtp.gmail.com:587",
 		auth,
-		"lionelriyadi13@gmail.com",
+		"myeggtpa@gmail.com",
 		allEmails,
 		[]byte(msg),
 	)
-	fmt.Println(err)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err,
-		})
-		return
-	}
+	time.Sleep(5 * time.Second)
+	// fmt.Println(err)
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"error": err,
+	// 	})
+	// 	return
+	// }
 	c.JSON(http.StatusOK, gin.H{
 		"message": "",
 	})
@@ -501,8 +506,8 @@ func NotifyShop(c *gin.Context) {
 
 	auth := smtp.PlainAuth(
 		"",
-		"lionelriyadi13@gmail.com",
-		"tkfuhgsqnhhidrnb",
+		"myeggtpa@gmail.com",
+		"bkhdhydorzroeeld",
 		"smtp.gmail.com",
 	)
 
@@ -510,7 +515,7 @@ func NotifyShop(c *gin.Context) {
 	err := smtp.SendMail(
 		"smtp.gmail.com:587",
 		auth,
-		"lionelriyadi13@gmail.com",
+		"myeggtpa@gmail.com",
 		[]string{body.Email},
 		[]byte(msg),
 	)

@@ -50,6 +50,21 @@ func GetCategoryByShopId(c *gin.Context) {
 		Select("category").Where("shop_id = ?", shopid).Find(&product)
 	c.JSON(200, &product)
 }
+func GetShopIDByUserID(c *gin.Context) {
+	userid := c.Query("userid")
+	userID, err := strconv.Atoi(userid)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "invalid conversion!",
+		})
+		return
+	}
+	var user models.User
+	config.DB.Where("id = ?", userID).First(&user)
+	var shop models.Shop
+	config.DB.Where("email = ?", user.Email).First(&shop)
+	c.JSON(200, &shop)
+}
 func GetUserShopId(c *gin.Context) {
 	id := c.Param("id")
 	var shop models.Shop
@@ -465,7 +480,7 @@ func UpdateAccountEmail(c *gin.Context) {
 			// fmt.Println(checkuser)
 			config.DB.Save(&userEmail)
 			c.JSON(200, gin.H{
-				"message":"Email has been changed successfully!",
+				"message": "Email has been changed successfully!",
 			})
 			return
 
@@ -513,9 +528,9 @@ func UpdateAccountPhoneNumber(c *gin.Context) {
 	}
 	config.DB.Where("ID = ?", userID).First(&user)
 
-	if(user.PhoneNumber==last){
-		c.JSON(200,gin.H{
-			"message":"You did not changed anything!",			
+	if user.PhoneNumber == last {
+		c.JSON(200, gin.H{
+			"message": "You did not changed anything!",
 		})
 		return
 
@@ -523,13 +538,13 @@ func UpdateAccountPhoneNumber(c *gin.Context) {
 	user.PhoneNumber = last
 	config.DB.Save(&user)
 	c.JSON(200, gin.H{
-		"message":"Phone Number successfully changed!",
+		"message": "Phone Number successfully changed!",
 	})
 	return
 
 }
-func SubscribeFromHome(c *gin.Context){
-	var body struct{
+func SubscribeFromHome(c *gin.Context) {
+	var body struct {
 		UserEmail string `json:"useremail"`
 	}
 	if c.Bind(&body) != nil {
@@ -539,20 +554,20 @@ func SubscribeFromHome(c *gin.Context){
 		return
 	}
 	var user models.User
-	config.DB.Where("email = ?",body.UserEmail).First(&user)
+	config.DB.Where("email = ?", body.UserEmail).First(&user)
 	var subscribeUser models.UserSubscribe
-	config.DB.Where("user_email = ?",body.UserEmail).First(&subscribeUser)
+	config.DB.Where("user_email = ?", body.UserEmail).First(&subscribeUser)
 	// config.DB.Create(&subscribeUser)
-	c.JSON(200,&subscribeUser)
-	if subscribeUser.ID==0{
+	c.JSON(200, &subscribeUser)
+	if subscribeUser.ID == 0 {
 		var newSubscriber models.UserSubscribe
-		newSubscriber.UserEmail=body.UserEmail
+		newSubscriber.UserEmail = body.UserEmail
 		config.DB.Create(&newSubscriber)
-		c.JSON(200,&newSubscriber)
+		c.JSON(200, &newSubscriber)
 		return
-	}else{
-		c.JSON(200,gin.H{
-			"error":"Invalid email!",
+	} else {
+		c.JSON(200, gin.H{
+			"error": "Invalid email!",
 		})
 		return
 	}
@@ -570,9 +585,9 @@ func UpdateAccountPassword(c *gin.Context) {
 		})
 		return
 	}
-	if body.NewPassword == body.OldPassword{
-		c.JSON(200,gin.H{
-			"error":"cannot be the same with old password",
+	if body.NewPassword == body.OldPassword {
+		c.JSON(200, gin.H{
+			"error": "cannot be the same with old password",
 		})
 		return
 	}
@@ -582,10 +597,9 @@ func UpdateAccountPassword(c *gin.Context) {
 		})
 		return
 	}
-	if len(body.NewPassword)<=5{
-		c.JSON(200,gin.H{
-			"error":"New Password must be above 5 characters!",
-			
+	if len(body.NewPassword) <= 5 {
+		c.JSON(200, gin.H{
+			"error": "New Password must be above 5 characters!",
 		})
 		return
 	}
@@ -621,8 +635,8 @@ func UpdateAccountPassword(c *gin.Context) {
 	c.JSON(200, &user)
 
 }
-func GetSubscribeStatus(c *gin.Context){
-	var body struct{
+func GetSubscribeStatus(c *gin.Context) {
+	var body struct {
 		UserID string `json:"userid"`
 	}
 	if c.Bind(&body) != nil {
@@ -633,21 +647,21 @@ func GetSubscribeStatus(c *gin.Context){
 	}
 	var currUser models.User
 	var subscribeCheck models.UserSubscribe
-	config.DB.Where("id = ?",body.UserID).First(&currUser)
-	config.DB.Where("user_email = ?",currUser.Email).First(&subscribeCheck)
-	if subscribeCheck.ID==0{
+	config.DB.Where("id = ?", body.UserID).First(&currUser)
+	config.DB.Where("user_email = ?", currUser.Email).First(&subscribeCheck)
+	if subscribeCheck.ID == 0 {
 		//ga ada subscribe
 		var newSubscribe models.UserSubscribe
-		newSubscribe.UserEmail=currUser.Email
+		newSubscribe.UserEmail = currUser.Email
 		config.DB.Create(&newSubscribe)
-		c.JSON(200,gin.H{
-			"message":"Not Subscribed",
+		c.JSON(200, gin.H{
+			"message": "Not Subscribed",
 		})
 		return
-	}else{
+	} else {
 		//subscribed
-		c.JSON(200,gin.H{
-			"error":"Subscribed",
+		c.JSON(200, gin.H{
+			"error": "Subscribed",
 		})
 		return
 	}

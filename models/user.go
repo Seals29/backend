@@ -8,14 +8,15 @@ import (
 
 type User struct {
 	gorm.Model
-	FirstName   string `json:"firstname"`
-	LastName    string `json:"lastname"`
-	IsBan       bool   `json:"isban"`
-	Role        string `json:"role"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	PhoneNumber string `json:"phonenumber"`
-	Balance     int    `json:"balance"`
+	FirstName   string  `json:"firstname"`
+	LastName    string  `json:"lastname"`
+	IsBan       bool    `json:"isban"`
+	Role        string  `json:"role"`
+	Email       string  `json:"email"`
+	Password    string  `json:"password"`
+	PhoneNumber string  `json:"phonenumber"`
+	Balance     float64 `json:"balance"`
+	IsVerif     bool    `json:"isverif"`
 }
 type ResetUser struct {
 	gorm.Model
@@ -111,14 +112,21 @@ type Follow struct {
 }
 type Order struct {
 	gorm.Model
-	UserID        int    `json:"userid"`
-	ProductID     int    `json:"productid"`
 	ShopID        int    `json:"shopid"`
+	UserID        int    `json:"userid"`
+	Status        string `json:"status"`
+	Invoice       string `json:"invoice"`
 	PaymentMethod string `json:"paymentmethod"`
 	Receiver      string `json:"receiver"`
 	Address       string `json:"address"`
 	Delivery      string `json:"delivery"`
-	ProductTotal  int    `json:"producttotal"`
+}
+
+type OrderDetail struct {
+	gorm.Model
+	OrderID   int `json:"orderid"`
+	ProductID int `json:"productid"`
+	Quantity  int `json:"quantity"`
 }
 type WishList struct {
 	gorm.Model
@@ -157,4 +165,14 @@ type ShopReview struct {
 	Rating        int    `json:"starreview"`
 	ReviewComment string `json:"reviewcomment"`
 	IsHelpFull    bool   `json:"ishelpfull"`
+}
+type Notification struct {
+	gorm.Model
+	UserID   int    `json:"userid"`
+	Message  string `json:"message"`
+	IsMarked bool   `json:"ismarked"`
+}
+type PromotionBanner struct {
+	gorm.Model
+	PromotionImage string `json:"promotionimage"`
 }
