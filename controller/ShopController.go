@@ -161,7 +161,7 @@ func AddNewReviewShop(c *gin.Context) {
 		Rating:        rating,
 		ReviewComment: body.Review,
 		ShopID:        shopid,
-		IsHelpFull:    false,
+		// IsHelpFull:    false,
 	}
 	config.DB.Create(&newReview)
 	allReview := []models.ShopReview{}

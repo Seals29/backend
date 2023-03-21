@@ -164,7 +164,8 @@ type ShopReview struct {
 	ShopID        int    `json:"shopid"`
 	Rating        int    `json:"starreview"`
 	ReviewComment string `json:"reviewcomment"`
-	IsHelpFull    bool   `json:"ishelpfull"`
+	HelpFull      int    `json:"helpfull"`
+	NotHelpFull   int    `json:"nothelpfull"`
 }
 type Notification struct {
 	gorm.Model
@@ -175,4 +176,27 @@ type Notification struct {
 type PromotionBanner struct {
 	gorm.Model
 	PromotionImage string `json:"promotionimage"`
+}
+type VerifEmail struct {
+	gorm.Model
+	ExpiredDate time.Time `json:"expireddate"`
+	Code        int       `json:"code"`
+	UserID      int       `json:"userid"`
+	Used        bool      `json:"used"`
+}
+type UserQuery struct {
+	gorm.Model
+	SearchQuery string `json:"searchquery"`
+	UserID      int    `json:"userid"`
+}
+type StoreNotification struct {
+	gorm.Model
+	ShopID   int    `json:"shopid"`
+	Message  string `json:"message"`
+	IsMarked bool   `json:"ismarked"`
+}
+type AnnouncementNotification struct {
+	gorm.Model
+	Message  string `json:"message"`
+	IsMarked bool   `json:"ismarked"`
 }

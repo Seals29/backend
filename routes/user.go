@@ -70,6 +70,9 @@ func UserRoute(route *gin.Engine) {
 	route.POST("/updateuseremail", controller.UpdateAccountEmail)
 	route.POST("/updateuserphone", controller.UpdateAccountPhoneNumber)
 	route.POST("/getsubscribestatus", controller.GetSubscribeStatus)
+
+	route.GET("/sendverifuseremail", controller.SendVerifUserEmail)
+	route.GET("/verifuseremail", controller.VerifUserEmail)
 	//wishlist
 	route.GET("/updatenotes", controller.UpdateNotes)
 
@@ -125,4 +128,16 @@ func UserRoute(route *gin.Engine) {
 	route.GET("/getbanner", controller.TestData)
 	route.POST("/addpromotionbanner", controller.AddPromotionBanner)
 	route.POST("/rmvpromotionbanner", controller.DeletePromotionBanner)
+
+	//reviews
+	route.GET("/getreviewbyuserid", controller.GetReviewByUserID)
+	route.GET("/deletereviewbyID", controller.DeleteReviewByRevID)
+	route.GET("/updatereviewbyid",controller.UpdateReviewByID)
+	//search
+	route.GET("/searchproduct", controller.SearchProduct)
+	route.GET("/savequery", controller.SaveSearchQuery)
+
+	//notification
+	route.GET("/getnotif", controller.GetStoreNotification)
+	route.GET("/getannouncenotif", controller.GetAnnounceNotification)
 }

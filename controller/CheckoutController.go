@@ -144,9 +144,15 @@ func CreateNewOrders(c *gin.Context) {
 	fmt.Println(shopIds)
 	fmt.Println("-----shopids")
 	for i := 0; i < len(shopIds); i++ {
+		//notif ke shopnya
+
 		shopID := shopIds[i]
 		invoiceCode := generateRandomInvoiceCode(user.FirstName)
-
+		var notif models.StoreNotification
+		notif.Message = "You have new order with this invoice code :" + invoiceCode
+		notif.IsMarked = false
+		notif.ShopID = shopIds[i]
+		config.DB.Create(&notif)
 		var newOrder models.Order
 		newOrder.ShopID = shopID
 

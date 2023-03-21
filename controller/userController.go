@@ -460,8 +460,8 @@ func Announce(c *gin.Context) {
 	// 	allEmails = append(allEmails, email)
 	// }
 	// admin@gmail.com tokopedia@gmail.com
-	allEmails= append(allEmails, "admin@gmail.com")
-	allEmails= append(allEmails, "tokopedia@gmail.com")
+	allEmails = append(allEmails, "admin@gmail.com")
+	allEmails = append(allEmails, "tokopedia@gmail.com")
 	//problemnya ga bisa send terlalu byk
 	//email dapet di body
 	auth := smtp.PlainAuth(
@@ -480,6 +480,10 @@ func Announce(c *gin.Context) {
 		allEmails,
 		[]byte(msg),
 	)
+	var annNotif models.AnnouncementNotification
+	annNotif.Message = body.Message
+	annNotif.IsMarked = false
+	config.DB.Create(&annNotif)
 	time.Sleep(5 * time.Second)
 	// fmt.Println(err)
 	// if err != nil {
@@ -488,6 +492,7 @@ func Announce(c *gin.Context) {
 	// 	})
 	// 	return
 	// }
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "",
 	})

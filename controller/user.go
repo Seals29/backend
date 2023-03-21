@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"crypto/rand"
 	"fmt"
+	"math/big"
 	"net/http"
 	"net/mail"
+	"net/smtp"
 	"strconv"
 
 	"github.com/Seals29/config"
@@ -72,7 +75,7 @@ func GetUserShopId(c *gin.Context) {
 	var user models.User
 	config.DB.Where("email = ?", shop.Email).First(&user)
 	// fmt.Println(user)
-	// fmt.Println("id : " + id + " shop : " + shop.Name)
+
 	c.JSON(200, &user)
 }
 func InsertUser(c *gin.Context) {
@@ -106,6 +109,99 @@ func createnewshop(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"msg": body,
 	})
+}
+func GetReviewByUserID(c *gin.Context) {
+	userid := c.Query("userid")
+	userID, errid := strconv.Atoi(userid)
+	if errid != nil {
+		c.JSON(400, gin.H{
+			"error": "Invalid Parsing!",
+		})
+		return
+	}
+	reviews := []models.ShopReview{}
+	config.DB.Where("user_id = ?", userID).Find(&reviews)
+	// reviews[0].UserID
+	type ShopReviewWithUser struct {
+		models.ShopReview
+		FirstName string `json:"firstname"`
+	}
+	allData := []ShopReviewWithUser{}
+	ers := config.DB.Table("shop_reviews").
+		Select("shop_reviews.*, users.first_name").
+		Joins("JOIN users ON shop_reviews.user_id = users.id").
+		Find(&allData).Error
+	// fmt.Println(ers)
+	if ers != nil {
+		c.JSON(400, &ers)
+		return
+	}
+	fmt.Println(allData)
+	c.JSON(200, &allData)
+}
+func UpdateReviewByID(c *gin.Context){
+	jwttoken := c.Query("token")
+	revid := c.Query("revid")
+	newcomment := c.Query("newcmt")
+	newstar := c.Query("star")
+	currUser, errs := extractUserIDFromToken(jwttoken)
+	fmt.Println(currUser)
+	revID, err := strconv.Atoi(revid)
+	fmt.Println(err)
+	fmt.Println("=====")
+	fmt.Println(jwttoken)
+	if err != nil || errs != nil {
+		c.JSON(400, gin.H{
+			"error": "Failed to parsing!",
+		})
+		return
+	}
+	var rev models.ShopReview
+	curruserID, errcur := strconv.Atoi(currUser)
+	newstars,errstar := strconv.Atoi(newstar)
+	if errcur != nil ||errstar!=nil{
+		c.JSON(400, gin.H{
+			"error": "Invalid Parsing!",
+		})
+		return
+	}
+	config.DB.Where("id = ?",revID).Where("user_id = ?",curruserID).First(&rev)
+
+	rev.ReviewComment=newcomment
+	rev.Rating = newstars
+	config.DB.Save(&rev)
+	c.JSON(200,gin.H{
+		"message":"Your Review has been updated Successfully!",
+	})
+}
+func DeleteReviewByRevID(c *gin.Context) {
+	revid := c.Query("revid")
+	jwttoken := c.Query("token")
+	currUser, errs := extractUserIDFromToken(jwttoken)
+	fmt.Println(currUser)
+	revID, err := strconv.Atoi(revid)
+	if err != nil || errs != nil {
+		c.JSON(400, gin.H{
+			"error": "Failed to parsing!",
+		})
+		return
+	}
+	var revs models.ShopReview
+	curruserID, errcur := strconv.Atoi(currUser)
+	if errcur != nil {
+		c.JSON(400, gin.H{
+			"error": "Invalid Parsing!",
+		})
+		return
+	}
+	config.DB.Where("id = ?", revID).First(&revs)
+	config.DB.Where("user_id=?", curruserID).Delete(&revs)
+	fmt.Println(revs)
+	c.JSON(200, gin.H{
+		"message": "Delete Reviews successfully!",
+	})
+	return
+
 }
 func CreateShop(c *gin.Context) {
 	var body struct {
@@ -634,6 +730,107 @@ func UpdateAccountPassword(c *gin.Context) {
 	}
 	c.JSON(200, &user)
 
+}
+func VerifUserEmail(c *gin.Context) {
+	code := c.Query("code")
+	jwttoken := c.Query("token")
+	currUser, errs := extractUserIDFromToken(jwttoken)
+	currUserID, errc := strconv.Atoi(currUser)
+	codeint, err := strconv.Atoi(code)
+	fmt.Println(jwttoken)
+	fmt.Println(code)
+	if err != nil || errs != nil || errc != nil {
+		c.JSON(400, gin.H{
+			"error": "invalid conversion!",
+		})
+		return
+	}
+	var verifcode models.VerifEmail
+	config.DB.Where("code = ?", codeint).Where("user_id = ?", currUserID).First(&verifcode)
+	if verifcode.ID == 0 {
+		c.JSON(400, gin.H{
+			"error": "Code is not found!",
+		})
+		return
+	}
+	verifcode.Used = true
+	var user models.User
+	config.DB.Where("id = ?", currUserID).First(&user)
+	user.IsVerif = true
+	config.DB.Save(&user)
+	config.DB.Save(&verifcode)
+	c.JSON(200, gin.H{
+		"message": "Your Email has been Verified!",
+	})
+	return
+
+}
+func SendVerifUserEmail(c *gin.Context) {
+	jwttoken := c.Query("token")
+	currUser, errs := extractUserIDFromToken(jwttoken)
+	if errs != nil {
+		c.JSON(400, gin.H{
+			"error": "invalid extract token",
+		})
+		return
+	}
+	currUserID, errc := strconv.Atoi(currUser)
+	if errc != nil {
+		c.JSON(400, gin.H{
+			"error": "invalid parsing!",
+		})
+		return
+	}
+	var user models.User
+	config.DB.Where("id = ?", currUserID).First(&user)
+
+	num, errf := rand.Int(rand.Reader, big.NewInt(900000))
+	if errf != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"Message": "Failed Error",
+		})
+		return
+	}
+	fmt.Println(num.Int64() + 100000) //6 digit code//save into database
+
+	//send email
+	auth := smtp.PlainAuth(
+		"",
+		"myeggtpa@gmail.com",
+		"bkhdhydorzroeeld",
+		"smtp.gmail.com",
+	)
+	intcode := int(num.Int64() + 100000)
+	code := strconv.Itoa(intcode)
+	msg := "Subject: Newegg VERIFICATION EMAIL!! \n\nYou've request to Verif your email, here is your code : " + code + "\n"
+
+	fmt.Println(user.ID)
+	if user.ID == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "user not found",
+		})
+		return
+	}
+
+	// msg := "Subject: " + body.Subject + "\n" + body.Message
+	smtp.SendMail(
+		"smtp.gmail.com:587",
+		auth,
+		"myeggtpa@gmail.com",
+		[]string{user.Email},
+		[]byte(msg),
+	)
+	var newVerif models.VerifEmail
+	newVerif.Used = false
+	newVerif.UserID = currUserID
+	newVerif.Code = intcode
+	config.DB.Create(&newVerif)
+	fmt.Println("+======+++")
+	fmt.Println(newVerif)
+	c.JSON(200, gin.H{
+		"message": "verification code has been sent!",
+	})
+	return
 }
 func GetSubscribeStatus(c *gin.Context) {
 	var body struct {
