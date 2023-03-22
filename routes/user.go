@@ -140,4 +140,9 @@ func UserRoute(route *gin.Engine) {
 	//notification
 	route.GET("/getnotif", controller.GetStoreNotification)
 	route.GET("/getannouncenotif", controller.GetAnnounceNotification)
+
+
+
+	//visuali
+	route.GET("/getcatcount",controller.GetCategoryCount)
 }

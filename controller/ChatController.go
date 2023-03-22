@@ -75,12 +75,12 @@ func SendingMessage(c *gin.Context) {
 	var ReqFrom string
 	h := http.Header{}
 	fmt.Println("connected")
-	fmt.Println(h)
+	// fmt.Println(h)
 	for _, sub := range websocket.Subprotocols(c.Request) {
 		h.Set("Sec-Websocket-Protocol", sub)
-		fmt.Println(sub)
+		// fmt.Println(sub)
 		ReqFrom = sub
-		fmt.Println(sub)
+		// fmt.Println(sub)
 	}
 	ws, err := upgrader.Upgrade(c.Writer, c.Request, h)
 	if err != nil {
